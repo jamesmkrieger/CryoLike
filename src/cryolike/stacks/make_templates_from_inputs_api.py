@@ -4,7 +4,7 @@ import numpy as np
 import os
 
 from .template import Templates
-from cryolike.util import Precision, AtomicModel, check_cuda
+from cryolike.util import Precision, AtomicModel, check_cuda, get_cuda_bool
 from cryolike.grids import Volume, PhysicalVolume
 from cryolike.plot import plot_images, plot_power_spectrum
 from cryolike.metadata import ImageDescriptor
@@ -70,6 +70,7 @@ def _make_templates_from_mrc_file(
     verbose: bool,
     use_cuda: bool
 ) -> Templates:
+    use_cuda = get_cuda_bool(device)
     volume = Volume.from_mrc(filename = mrc_file)
     if volume.density_physical is None:
         raise ValueError(f"Can't happen: parsing mrc file {mrc_file} did not generate a physical density.")
@@ -87,7 +88,8 @@ def _make_templates_from_mrc_file(
 def _make_templates_from_pdb_file(
     pdb_file: str,
     descriptor: ImageDescriptor,
-    verbose: bool
+    verbose: bool,
+    use_cuda: bool = True
 ) -> Templates:
     if not descriptor.is_compatible_with_pdb():
         raise ValueError("Attempting to read templates from PDB file, but the atom_radii parameter or use_protein_residue_model=True is not set.")
@@ -109,7 +111,8 @@ def _make_templates_from_pdb_file(
         box_size=box_size,
         atom_shape=descriptor.atom_shape,
         precision=descriptor.precision,
-        verbose = verbose
+        verbose = verbose,
+        use_cuda = use_cuda
     )
 
 
@@ -118,8 +121,7 @@ def _make_templates_from_memory_array(
     descriptor: ImageDescriptor,
     torch_float_type: torch.dtype,
     device: torch.device,
-    verbose: bool,
-    use_cuda: bool
+    verbose: bool
 ) -> Templates:
     if isinstance(input, np.ndarray):
         input = torch.from_numpy(input)
@@ -136,7 +138,7 @@ def _make_templates_from_memory_array(
         descriptor.viewing_angles,
         precision=descriptor.precision,
         verbose=verbose,
-        use_cuda=use_cuda
+        use_cuda=get_cuda_bool(device)
     )
 
 
@@ -158,6 +160,7 @@ def _make_raw_template(
     device: torch.device,
     verbose: bool
 ):
+    use_cuda = get_cuda_bool(device)
     (name, extension) = _get_input_name(input, iteration_cnt)
     if isinstance(input, str):
         # TODO: it might be better to do a more reliable test
@@ -166,7 +169,7 @@ def _make_raw_template(
             tp = _make_templates_from_mrc_file(input, descriptor, t_float, device, verbose)
         elif extension in PDB_EXTENSIONS:
             print(f"pdb_name: {name}")
-            tp = _make_templates_from_pdb_file(input, descriptor, verbose)
+            tp = _make_templates_from_pdb_file(input, descriptor, verbose, use_cuda)
         else:
             raise ValueError("Unknown input format")
     elif isinstance(input, np.ndarray) or isinstance(input, torch.Tensor):

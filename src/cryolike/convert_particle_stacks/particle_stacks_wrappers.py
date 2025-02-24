@@ -18,7 +18,6 @@ def convert_particle_stacks_from_star_files(
     downsample_type: Literal['mean'] | Literal['max'] = 'mean',
     skip_exist: bool = False,
     flag_plots: bool = True,
-    overwrite: bool = False,
     use_cuda: bool = True
 ):
     """Transcode a set of particle files, with metadata described in starfile format,
@@ -82,7 +81,8 @@ def convert_particle_stacks_from_indexed_star_files(
     downsample_factor: int = 1,
     downsample_type: Literal['mean'] | Literal['max'] = 'mean',
     pixel_size: float | FloatArrayType | None = None,
-    flag_plots: bool = True
+    flag_plots: bool = True,
+    use_cuda: bool = True
 ):
     """Transcode a set of particle files, with metadata described in starfile format,
     to consistent batches in a specified output folder.
@@ -105,7 +105,9 @@ def convert_particle_stacks_from_indexed_star_files(
             be read from the MRC particle files.
         flag_plots (bool, optional): Whether to plot images and power spectrum along with
             the transcoding results. Defaults to True.
+        use_cuda (bool, optional): Whether to use cuda. Defaults to True.  
     """
+    device = check_cuda(use_cuda)
     converter = ParticleStackConverter(
         image_descriptor=params_input,
         folder_output=folder_output,
@@ -113,7 +115,8 @@ def convert_particle_stacks_from_indexed_star_files(
         pixel_size=pixel_size,
         downsample_factor=downsample_factor,
         downsample_type=downsample_type,
-        flag_plots=flag_plots
+        flag_plots=flag_plots,
+        device=device
     )
     converter.prepare_indexed_star_file(
         star_file=star_file,
@@ -134,7 +137,8 @@ def convert_particle_stacks_from_cryosparc(
     downsample_factor: int = 1,
     downsample_type: Literal['mean'] | Literal['max'] = 'mean',
     skip_exist: bool = False,
-    flag_plots: bool = True
+    flag_plots: bool = True,
+    use_cuda: bool = True
 ):
     """Transcodes a set of MRC files, with a cryosparc metadata file, into internal
     representation, with optional downsampling.
@@ -178,7 +182,9 @@ def convert_particle_stacks_from_cryosparc(
         flag_plots (bool, optional): If True (the default), the function
             will output images and power spectrum along with the
             transcoding results.
+        use_cuda (bool, optional): Whether to use cuda. Defaults to True.  
     """
+    device = check_cuda(use_cuda)
     converter = ParticleStackConverter(
         image_descriptor=params_input,
         folder_output=folder_output,
@@ -186,7 +192,8 @@ def convert_particle_stacks_from_cryosparc(
         pixel_size=pixel_size,
         downsample_factor=downsample_factor,
         downsample_type=downsample_type,
-        flag_plots=flag_plots
+        flag_plots=flag_plots,
+        device=device
     )
     converter.prepare_indexed_cryosparc(file_cs=file_cs, folder_cryosparc=folder_cryosparc)
     converter.convert_stacks(batch_size=batch_size)
@@ -203,7 +210,8 @@ def convert_particle_stacks_from_cryosparc_restack(
     downsample_factor: int = 1,
     downsample_type: Literal['mean'] | Literal['max'] = 'mean',
     skip_exist: bool = False,
-    flag_plots: bool = True
+    flag_plots: bool = True,
+    use_cuda: bool = True
 ):
     """Transcodes a set of (previously restacked) MRC files into internal
     representation, with optional downsampling.
@@ -249,7 +257,9 @@ def convert_particle_stacks_from_cryosparc_restack(
         flag_plots (bool, optional): If True (the default), the function
             will output images and power spectrum along with the
             transcoding results.
+        use_cuda (bool, optional): Whether to use cuda. Defaults to True.  
     """
+    device = check_cuda(use_cuda)
     converter = ParticleStackConverter(
         image_descriptor=params_input,
         folder_output=folder_output,
@@ -257,7 +267,8 @@ def convert_particle_stacks_from_cryosparc_restack(
         pixel_size=pixel_size,
         downsample_factor=downsample_factor,
         downsample_type=downsample_type,
-        flag_plots=flag_plots
+        flag_plots=flag_plots,
+        device=device
     )
     converter.prepare_sequential_cryosparc(folder_cryosparc, job_number)
     converter.convert_stacks(batch_size=batch_size)

@@ -65,10 +65,10 @@ def run_likelihood(
         verbose (bool): verbose mode
         use_cuda (bool): whether to use cuda (default True)
     """
-    device = check_cuda(use_cuda)
-
     if return_likelihood_optimal_pose_physical:
         raise NotImplementedError("Physical likelihood is still under development and not yet available. Please use Fourier likelihood instead.")
+
+    device = check_cuda(use_cuda)
 
     if search_batch_size:
         list_n_images_per_batch = []
@@ -189,7 +189,7 @@ def run_likelihood(
                                 torch.save(displacements_set, os.path.join(folder_output, 'displacements_set.pt'))
                                 flag_returned_displacements = True
                             optimal_pose, log_likelihood_fourier_integrated = cclik._compute_cross_correlation_likelihood(
-                                device=torch.device(device),
+                                device=device,
                                 images_fourier = im.images_fourier,
                                 ctf = ctf_tensor,
                                 n_pixels_phys = im.phys_grid.n_pixels[0] * im.phys_grid.n_pixels[1],
