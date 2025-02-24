@@ -9,7 +9,7 @@ from cryolike.grids import PolarGrid
 from cryolike.util import Precision, to_torch, absq, complex_mul_real
 
 from cryolike.grids import Volume
-from cryolike.util import AtomicModel, FloatArrayType, AtomShape
+from cryolike.util import AtomicModel, FloatArrayType, AtomShape, check_cuda
 from cryolike.metadata import ViewingAngles
 from cryolike.stacks.image import _verify_displacements
 
@@ -123,7 +123,7 @@ def calc_likelihood_optimal_pose(
     """
     Calculate the distance between the optimal templates and the true templates.
     """
-    device = 'cuda' if use_cuda and torch.cuda.is_available() else 'cpu'
+    device = check_cuda(use_cuda)
     n_images = image.n_images
     ## calculate the translation kernels
     translation_kernel___ = None

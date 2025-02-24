@@ -1,6 +1,6 @@
 from typing import Literal
 
-from cryolike.util import FloatArrayType
+from cryolike.util import FloatArrayType, check_cuda
 from cryolike.metadata import ImageDescriptor
 from .particle_stacks_converter import ParticleStackConverter
 
@@ -18,7 +18,8 @@ def convert_particle_stacks_from_star_files(
     downsample_type: Literal['mean'] | Literal['max'] = 'mean',
     skip_exist: bool = False,
     flag_plots: bool = True,
-    overwrite: bool = False
+    overwrite: bool = False,
+    use_cuda: bool = True
 ):
     """Transcode a set of particle files, with metadata described in starfile format,
     to consistent batches in a specified output folder.
@@ -49,7 +50,10 @@ def convert_particle_stacks_from_star_files(
         flag_plots (bool, optional): Whether to plot images and power spectrum along with
             the transcoding results. Defaults to True.
         overwrite (bool, optional): Whether to overwrite existing stacks. Defaults to False.
+        use_cuda (bool, optional): Whether to use cuda. Defaults to True.
     """
+    device = check_cuda(use_cuda)
+
     converter = ParticleStackConverter(
         image_descriptor=params_input,
         folder_output=folder_output,
@@ -57,7 +61,8 @@ def convert_particle_stacks_from_star_files(
         pixel_size=pixel_size,
         downsample_factor=downsample_factor,
         downsample_type=downsample_type,
-        flag_plots=flag_plots
+        flag_plots=flag_plots,
+        device=device
     )
     converter.prepare_star_files(
         particle_file_list=particle_file_list,

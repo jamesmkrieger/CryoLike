@@ -67,7 +67,8 @@ def _make_templates_from_mrc_file(
     descriptor: ImageDescriptor,
     torch_float_type: torch.dtype,
     device: torch.device,
-    verbose: bool
+    verbose: bool,
+    use_cuda: bool
 ) -> Templates:
     volume = Volume.from_mrc(filename = mrc_file)
     if volume.density_physical is None:
@@ -78,7 +79,8 @@ def _make_templates_from_mrc_file(
         polar_grid=descriptor.polar_grid,
         viewing_angles=descriptor.viewing_angles,
         precision=descriptor.precision,
-        verbose=verbose
+        verbose=verbose,
+        use_cuda=use_cuda
     )
 
 
@@ -117,6 +119,7 @@ def _make_templates_from_memory_array(
     torch_float_type: torch.dtype,
     device: torch.device,
     verbose: bool,
+    use_cuda: bool
 ) -> Templates:
     if isinstance(input, np.ndarray):
         input = torch.from_numpy(input)
@@ -132,7 +135,8 @@ def _make_templates_from_memory_array(
         descriptor.polar_grid,
         descriptor.viewing_angles,
         precision=descriptor.precision,
-        verbose=verbose
+        verbose=verbose,
+        use_cuda=use_cuda
     )
 
 
@@ -187,7 +191,8 @@ def make_templates_from_inputs(
     image_parameters_file: str,
     output_plots: bool = True,
     folder_output: str = "./templates/",
-    verbose: bool = False
+    verbose: bool = False,
+    use_cuda: bool = True
 ):
     """Parse a series of inputs to internal pytorch tensor representation, then save to an output directory.
 
@@ -199,6 +204,7 @@ def make_templates_from_inputs(
         folder_output (str, optional): Directory in which to write the generated Template data.
             Defaults to "./templates/".
         verbose (bool, optional): Whether to provide verbose output. Defaults to False.
+        use_cuda (bool, optional): Whether to use cuda. Defaults to True.
 
     Raises:
         ValueError: If any inputs have an unrecognized file extension or are neither string
@@ -213,7 +219,7 @@ def make_templates_from_inputs(
     descriptor = ImageDescriptor.load(image_parameters_file)
     precision = Precision.from_str(descriptor.precision)
     (t_float, _, _) = precision.get_dtypes(default=Precision.SINGLE)
-    device = check_cuda(True)
+    device = check_cuda(use_cuda)
 
     if _inputs_include_pdb_files(list_of_inputs) and not descriptor.is_compatible_with_pdb():
         raise ValueError("To process PDB files, you must either set an atom_radii or set use_protein_residue_model=True.")
