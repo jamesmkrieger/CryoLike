@@ -67,8 +67,7 @@ def _make_templates_from_mrc_file(
     descriptor: ImageDescriptor,
     torch_float_type: torch.dtype,
     device: torch.device,
-    verbose: bool,
-    use_cuda: bool
+    verbose: bool
 ) -> Templates:
     use_cuda = get_cuda_bool(device)
     volume = Volume.from_mrc(filename = mrc_file)
