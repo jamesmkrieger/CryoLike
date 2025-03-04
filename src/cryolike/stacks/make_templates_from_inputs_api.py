@@ -187,7 +187,8 @@ def make_templates_from_inputs(
     image_parameters_file: str,
     output_plots: bool = True,
     folder_output: str = "./templates/",
-    verbose: bool = False
+    verbose: bool = False,
+    i_start: int = 0
 ):
     """Parse a series of inputs to internal pytorch tensor representation, then save to an output directory.
 
@@ -199,6 +200,7 @@ def make_templates_from_inputs(
         folder_output (str, optional): Directory in which to write the generated Template data.
             Defaults to "./templates/".
         verbose (bool, optional): Whether to provide verbose output. Defaults to False.
+        i_start (int, optional): Starting index for directories. Defaults to 0
 
     Raises:
         ValueError: If any inputs have an unrecognized file extension or are neither string
@@ -221,7 +223,7 @@ def make_templates_from_inputs(
     plots_output_dir = _set_up_directories(folder_output, output_plots)
     plotter_fn = _make_plotter_fn(plots_output_dir)
     template_file_list = []
-    for i, input in enumerate(list_of_inputs):
+    for i, input in enumerate(list_of_inputs, start=i_start):
         (tp, name) = _make_raw_template(input, i, descriptor, t_float, device, verbose)
         tp.normalize_images_fourier(ord=2, use_max=False)
         plotter_fn(tp, descriptor, name)
