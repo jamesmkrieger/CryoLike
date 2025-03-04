@@ -239,4 +239,8 @@ def make_templates_from_inputs(
         torch.save(tp.images_fourier, template_file)
         template_file_list.append(template_file)
 
-    np.save(os.path.join(folder_output, 'template_file_list.npy'), template_file_list)
+    if i_start == 0:
+        list_filename = 'template_file_list.npy'
+    else:
+        list_filename = 'template_file_list_%d.npy' % i_start
+    np.save(os.path.join(folder_output, list_filename), template_file_list)
