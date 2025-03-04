@@ -18,7 +18,8 @@ def convert_particle_stacks_from_star_files(
     downsample_type: Literal['mean'] | Literal['max'] = 'mean',
     skip_exist: bool = False,
     flag_plots: bool = True,
-    use_cuda: bool = True
+    use_cuda: bool = True,
+    overwrite: bool = False
 ):
     """Transcode a set of particle files, with metadata described in starfile format,
     to consistent batches in a specified output folder.
